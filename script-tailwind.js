@@ -1,46 +1,69 @@
 (function() {
+    // 1. Evitamos duplicar la carga si recargas la página
     if (document.getElementById('bootstrap-css')) return;
 
-    // 1. Importamos todo el CSS profesional de Bootstrap 5 desde una CDN fiable
+    // 2. Inyectamos el CSS de la CDN oficial de Bootstrap 5.3.8 que encontraste
     var link = document.createElement('link');
     link.id = 'bootstrap-css';
     link.rel = 'stylesheet';
-    link.href = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/box.css'; // Versión sin reset agresivo si es posible, o la estándar:
-    link.href = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css';
+    link.href = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css';
+    
+    // Añadimos los atributos de seguridad recomendados por la documentación
+    link.crossOrigin = 'anonymous';
     document.head.appendChild(link);
 
-    // 2. Esperamos un instante a que cargue el CSS y aplicamos las clases ya diseñadas
-    setTimeout(function() {
-        
-        // La tabla principal del CRM la convertimos en una tabla moderna de Bootstrap
+    // 3. Esperamos a que el CSS se descargue para aplicar las clases
+    link.onload = function() {
+        console.log("Bootstrap 5.3.8 cargado con éxito.");
+
+        // -- TABLA PRINCIPAL --
         var mainTable = document.getElementById('rcMainTable');
         if (mainTable) {
-            // "table table-hover table-striped shadow-sm" son clases oficiales de Bootstrap
-            mainTable.className = 'table table-hover table-striped align-middle bg-white shadow-sm rounded-3';
+            // Clases de Bootstrap: tabla, efecto hover, sombra suave y bordes redondeados
+            mainTable.className = 'table table-hover shadow-sm rounded-3 overflow-hidden border bg-white';
         }
 
-        // Todos los inputs de texto adoptan el diseño "Form Control" de Bootstrap (bordes suaves, enfoque azul)
+        // Títulos de las secciones de la tabla
+        var sectionTitles = document.querySelectorAll('#rcMainTable span > div');
+        sectionTitles.forEach(function(title) {
+            title.className = 'bg-light text-secondary px-3 py-2 fw-bold text-uppercase small border-start border-primary border-4 rounded-end';
+        });
+
+        // -- INPUTS DE TEXTO --
         var inputs = document.querySelectorAll('.Field input[type="text"]');
         inputs.forEach(function(input) {
-            input.className = 'form-control form-control-sm d-inline-block w-auto';
+            // Clases de Bootstrap para inputs (bordes azules al hacer clic)
+            input.className = 'form-control form-control-sm d-inline-block';
+            input.style.width = 'auto'; // Evita que ocupen el 100% de la pantalla
         });
 
-        // Todos los select (desplegables)
+        // -- SELECTS (Desplegables) --
         var selects = document.querySelectorAll('.Field select');
         selects.forEach(function(select) {
-            select.className = 'form-select form-select-sm d-inline-block w-auto';
+            select.className = 'form-select form-select-sm d-inline-block';
+            select.style.width = 'auto';
         });
 
-        // Convertimos las celdas del Workflow superior en botones elegantes de Bootstrap
-        var stepCurrent = document.querySelector('.WorkflowBlock .stepCurrent');
-        if (stepCurrent) {
-            stepCurrent.className = 'btn btn-primary btn-sm fw-bold px-4 py-2 text-center d-block';
+        // -- BOTONES DE BÚSQUEDA (Lupas y calendarios) --
+        var buttons = document.querySelectorAll('.Field button');
+        buttons.forEach(function(btn) {
+            btn.className = 'btn btn-light btn-sm border ms-2 d-inline-flex align-items-center justify-content-center';
+        });
+
+        // -- WORKFLOW (Botones de Crear/Realizar) --
+        var workflowBlock = document.querySelector('.WorkflowBlock');
+        if (workflowBlock) {
+            workflowBlock.className = 'mb-4 w-100'; // Margen inferior
+            
+            var stepCurrent = workflowBlock.querySelector('.stepCurrent');
+            if (stepCurrent) {
+                stepCurrent.className = 'btn btn-primary fw-bold px-4 py-2 w-100 shadow-sm';
+            }
+            
+            var stepsDone = workflowBlock.querySelectorAll('.stepDone');
+            stepsDone.forEach(function(step) {
+                step.className = 'btn btn-outline-success fw-semibold px-4 py-2 w-100';
+            });
         }
-        
-        var stepsDone = document.querySelectorAll('.WorkflowBlock .stepDone');
-        stepsDone.forEach(function(step) {
-            step.className = 'btn btn-outline-success btn-sm px-4 py-2 text-center d-block';
-        });
-
-    }, 300);
+    };
 })();
