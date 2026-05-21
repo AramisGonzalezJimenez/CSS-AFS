@@ -1,8 +1,8 @@
 (function() {
-    // 1. Evitamos duplicar la carga
+    // 1. Evitamos duplicar la carga de librerías
     if (document.getElementById('bootstrap-css')) return;
 
-    // 2. Inyectamos el CSS de Bootstrap 5.3.8
+    // 2. Inyectamos CSS de Bootstrap 5.3.8
     var linkBs = document.createElement('link');
     linkBs.id = 'bootstrap-css';
     linkBs.rel = 'stylesheet';
@@ -17,91 +17,111 @@
     linkIcons.href = 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css';
     document.head.appendChild(linkIcons);
 
-    // 4. Maquetación quirúrgica
+    // 4. Transformación cosmética una vez cargadas las dependencias
     linkBs.onload = function() {
-        console.log("Bootstrap cargado. Domando botones gigantes...");
+        console.log("Bootstrap integrado con éxito. Domando la interfaz...");
 
-        // -- TABLA PRINCIPAL DE DATOS --
-        var mainTable = document.getElementById('rcMainTable');
-        if (mainTable) {
-            mainTable.className = 'table align-middle shadow-sm rounded-3 overflow-hidden border bg-white';
-        }
-
-        var sectionTitles = document.querySelectorAll('#rcMainTable span > div');
-        sectionTitles.forEach(function(title) {
-            title.className = 'bg-light text-secondary px-3 py-2 fw-bold text-uppercase small border-start border-primary border-4 rounded-end';
+        // -- FORMULARIO Y TABLAS PRINCIPALES (.Label y .Field) --
+        var fieldTables = document.querySelectorAll('table:has(.Field), table:has(.Label)');
+        fieldTables.forEach(function(table) {
+            if (!table.classList.contains('WorkflowBlock')) {
+                table.className = 'table table-sm align-middle bg-white shadow-sm rounded-3 overflow-hidden border mb-4';
+                table.style.width = '100%';
+                table.style.maxWidth = '1200px';
+            }
         });
 
-        // -- INPUTS Y SELECTS --
+        // Estilización de títulos de secciones en gris/azul moderno
+        var sectionTitles = document.querySelectorAll('.LabelLeft div');
+        sectionTitles.forEach(function(title) {
+            title.className = 'bg-light text-secondary px-3 py-2 fw-bold text-uppercase small border-start border-primary border-4 rounded-end';
+            title.style.backgroundColor = '#f8f9fa';
+        });
+
+        // -- ENTRADAS DE DATOS (INPUTS Y SELECTS) --
         var inputs = document.querySelectorAll('.Field input[type="text"]');
         inputs.forEach(function(input) {
             input.className = 'form-control form-control-sm d-inline-block align-middle';
             input.style.width = '100%';
-            input.style.maxWidth = '320px';
+            input.style.maxWidth = '280px';
         });
 
         var selects = document.querySelectorAll('.Field select');
         selects.forEach(function(select) {
             select.className = 'form-select form-select-sm d-inline-block align-middle';
             select.style.width = '100%';
-            select.style.maxWidth = '320px';
+            select.style.maxWidth = '280px';
         });
 
-        // -- WORKFLOW (¡Adiós al tamaño gigante!) --
-        var workflowBlock = document.querySelector('.WorkflowBlock') || document.querySelector('table.mb-4');
-        if (workflowBlock) {
-            // Quitamos el w-100 de la tabla y le ponemos un ancho máximo normal de oficina
-            workflowBlock.className = 'mb-4';
-            workflowBlock.style.width = 'auto';
-            workflowBlock.style.maxWidth = '400px'; 
-            workflowBlock.style.borderCollapse = 'separate';
-            workflowBlock.style.borderSpacing = '8px';
-
-            // Estilizamos el botón activo (Realizar)
-            var stepCurrent = workflowBlock.querySelector('.stepCurrent') || workflowBlock.querySelector('.btn-primary');
-            if (stepCurrent) {
-                stepCurrent.className = 'bg-primary text-white fw-bold p-2 text-center rounded-3 shadow-sm align-middle';
-                stepCurrent.style.width = '160px'; // Ancho fijo y controlado
-                stepCurrent.style.cursor = 'pointer';
-                
-                // Ocultamos el SVG viejo pixelado de Synergy para que no estorbe
-                var oldSvg = stepCurrent.querySelector('img') || stepCurrent.querySelector('.svgStepCurrent');
-                if (oldSvg) oldSvg.style.display = 'none';
-
-                // Inyectamos el icono limpio de Bootstrap si no existe ya
-                if (!stepCurrent.querySelector('.bi')) {
-                    var texto = stepCurrent.querySelector('span') ? stepCurrent.querySelector('span').innerText : 'Realizar';
-                    stepCurrent.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i><span style="vertical-align:middle;">' + texto + '</span>';
-                }
+        // Lupas y Calendarios nativos: los estilizamos como botones link discretos
+        var nativeButtons = document.querySelectorAll('.Field button');
+        nativeButtons.forEach(function(btn) {
+            btn.className = 'btn btn-link p-1 text-secondary align-middle ms-1';
+            btn.style.width = 'auto';
+            btn.style.height = 'auto';
+            var svg = btn.querySelector('svg');
+            if (svg) {
+                svg.style.width = '18px';
+                svg.style.height = '18px';
+                svg.style.fill = '#6c757d';
             }
-            
-            // Estilizamos el botón secundario (Crear / Rechazar)
-            var stepsDone = workflowBlock.querySelectorAll('.stepDone') || workflowBlock.querySelectorAll('.btn-outline-success');
-            stepsDone.forEach(function(step) {
-                step.className = 'bg-success-subtle text-success border border-success-subtle fw-semibold p-2 text-center rounded-3 align-middle';
-                step.style.width = '160px'; // Mismo ancho para mantener simetría
-                step.style.cursor = 'pointer';
+        });
+
+
+        // -- RECONSTRUCCIÓN DEL WORKFLOWBLOCK (El botón gigante) --
+        var workflowTable = document.querySelector('.WorkflowBlock');
+        if (workflowTable) {
+            // Curamos la tabla: eliminamos el ancho del 50%/100% y la hacemos compacta
+            workflowTable.removeAttribute('width');
+            workflowTable.className = 'table table-borderless w-auto mb-4';
+            workflowTable.style.borderCollapse = 'separate';
+            workflowTable.style.borderSpacing = '12px 4px';
+
+            // Procesamos la fila de botones (Fila 1)
+            var buttonCells = workflowTable.querySelectorAll('tr:first-child td');
+            buttonCells.forEach(function(td) {
+                td.removeAttribute('nowrap');
+                td.style.width = '180px'; // Ancho de botón humano y estándar de oficina
+                td.style.padding = '0';
+                td.style.cursor = 'pointer';
+
+                // Detectamos el tipo de botón basándonos en sus clases o contenido
+                var isCurrent = td.classList.contains('stepCurrent') || td.innerHTML.includes('Realizar');
                 
-                var textoBtn = step.querySelector('span') ? step.querySelector('span').innerText : 'Crear';
-                step.innerHTML = '<span style="vertical-align:middle;">' + textoBtn + '</span>';
+                // Extraemos el texto crudo ('Crear' o 'Realizar')
+                var spanText = td.querySelector('span');
+                var text = spanText ? spanText.innerText.trim() : td.innerText.trim();
+
+                // Generamos la estructura del botón interna limpia e inmune a deformaciones
+                if (isCurrent) {
+                    td.innerHTML = `
+                        <div class="btn btn-primary fw-bold d-flex align-items-center justify-content-center shadow-sm w-100 py-2" style="border-radius: 8px; pointer-events: none;">
+                            <i class="bi bi-check-circle-fill me-2 fs-6"></i>
+                            <span>${text}</span>
+                        </div>
+                    `;
+                } else {
+                    td.innerHTML = `
+                        <div class="btn btn-outline-success fw-semibold d-flex align-items-center justify-content-center w-100 py-2" style="border-radius: 8px; pointer-events: none;">
+                            <i class="bi bi-plus-circle me-2 fs-6"></i>
+                            <span>${text}</span>
+                        </div>
+                    `;
+                }
+            });
+
+            // Procesamos la fila de metadatos (Quién y Cuándo - Fila 2)
+            var metaCells = workflowTable.querySelectorAll('tr:nth-child(2) td');
+            metaCells.forEach(function(td) {
+                td.className = 'text-muted small text-center pt-1';
+                td.style.width = '180px';
+                
+                // Limpiamos los links de los nombres de usuario
+                var links = td.querySelectorAll('a');
+                links.forEach(function(a) {
+                    a.className = 'text-decoration-none fw-semibold text-secondary';
+                });
             });
         }
-
-        // -- BOTONES DE ACCIÓN (Lupas y Calendarios) --
-        var buttons = document.querySelectorAll('.Field button');
-        buttons.forEach(function(btn) {
-            btn.className = 'btn btn-light btn-sm border ms-1 d-inline-flex align-items-center justify-content-center align-middle';
-            btn.style.height = '31px'; 
-            btn.style.width = '34px';
-
-            var clickAction = btn.getAttribute('onclick') || '';
-            if (btn.querySelector('img') || btn.innerText.trim() === '') {
-                if (clickAction.includes('Calendar') || clickAction.includes('Date')) {
-                    btn.innerHTML = '<i class="bi bi-calendar3 text-body-secondary"></i>';
-                } else {
-                    btn.innerHTML = '<i class="bi bi-search text-body-secondary"></i>';
-                }
-            }
-        });
     };
 })();
