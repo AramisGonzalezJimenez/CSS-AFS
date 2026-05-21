@@ -1,77 +1,151 @@
 (function() {
-    // 1. Configurar Tailwind para que aplaste el CSS del CRM
-    const twConfig = document.createElement('script');
-    twConfig.innerHTML = `
-        tailwind.config = {
-            // Esto es magia: obliga a Tailwind a ganar cualquier conflicto de CSS
-            // solo dentro de tu contenedor, sin romper el menú de Synergy.
-            important: '#nano-container', 
-            corePlugins: {
-                preflight: false, // Mantenemos el reset global apagado por seguridad
-            }
+    // Evitamos duplicar los estilos si se recarga la página
+    if (document.getElementById('synergy-pure-css')) return;
+
+    var estilo = document.createElement('style');
+    estilo.id = 'synergy-pure-css';
+    estilo.type = 'text/css';
+
+    // CSS Puro diseñado específicamente para domar las tablas de Synergy
+    estilo.innerHTML = `
+        /* =========================================
+           Contenedor Principal
+        ========================================= */
+        #nano-container {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            background-color: #f8fafc !important;
+            padding: 24px !important;
+        }
+
+        /* =========================================
+           Bloque de Workflow (Crear / Realizar)
+        ========================================= */
+        .WorkflowBlock {
+            width: 100% !important;
+            border-collapse: separate !important;
+            border-spacing: 12px !important; 
+            margin-bottom: 24px !important;
+        }
+        .WorkflowBlock td {
+            padding: 14px 16px !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            text-align: center !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+        }
+        .WorkflowBlock .stepDone {
+            background-color: #f0fdf4 !important;
+            color: #166534 !important;
+            border: 1px solid #bbf7d0 !important;
+        }
+        .WorkflowBlock .stepDone:hover {
+            background-color: #dcfce7 !important;
+            transform: translateY(-1px) !important;
+        }
+        .WorkflowBlock .stepCurrent {
+            background-color: #eff6ff !important;
+            color: #1e40af !important;
+            border: 1px solid #bfdbfe !important;
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15) !important;
+        }
+
+        /* =========================================
+           Tabla Principal del Formulario
+        ========================================= */
+        #rcMainTable {
+            background: #ffffff !important;
+            border-collapse: collapse !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            width: 100% !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        #rcMainTable td {
+            padding: 16px 20px !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+        #rcMainTable span > div {
+            background-color: #f8fafc !important;
+            color: #334155 !important;
+            padding: 10px 16px !important;
+            border-radius: 6px !important;
+            font-size: 12px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.8px !important;
+            border-left: 4px solid #64748b !important;
+            font-weight: bold !important;
+        }
+        .Label, .LabelLeft {
+            font-weight: 600 !important;
+            color: #475569 !important;
+            font-size: 13px !important;
+            background-color: #f8fafc !important;
+            white-space: nowrap !important;
+            width: 15% !important;
+        }
+
+        /* =========================================
+           Campos de Entrada (Inputs y Selects)
+        ========================================= */
+        .Field input[type="text"],
+        .Field select {
+            width: calc(100% - 50px) !important;
+            max-width: 400px !important;
+            padding: 10px 14px !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 6px !important;
+            font-size: 14px !important;
+            color: #334155 !important;
+            transition: all 0.3s !important;
+            box-sizing: border-box !important;
+            background-color: #ffffff !important;
+        }
+        .Field input[type="text"]:focus,
+        .Field select:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+            outline: none !important;
+        }
+        .Field input[type="checkbox"] {
+            width: 18px !important;
+            height: 18px !important;
+            cursor: pointer !important;
+            accent-color: #3b82f6 !important;
+        }
+
+        /* =========================================
+           Botones e Iconos SVG
+        ========================================= */
+        .Field button {
+            background-color: #f1f5f9 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 6px !important;
+            padding: 8px 12px !important;
+            margin-left: 8px !important;
+            cursor: pointer !important;
+            transition: all 0.2s !important;
+            height: 40px !important; /* Igualar altura de inputs */
+        }
+        .Field button:hover {
+            background-color: #e2e8f0 !important;
+            border-color: #94a3b8 !important;
+        }
+        .Field a, td.content a {
+            color: #2563eb !important;
+            text-decoration: none !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            margin-left: 8px !important;
+        }
+        .Field a:hover, td.content a:hover {
+            color: #1d4ed8 !important;
+            text-decoration: underline !important;
         }
     `;
-    document.head.appendChild(twConfig);
-
-    // 2. Inyectar el motor de Tailwind JS
-    const twScript = document.createElement('script');
-    twScript.src = "https://cdn.tailwindcss.com";
-    document.head.appendChild(twScript);
-
-    // 3. Aplicar clases cuando Tailwind cargue
-    twScript.onload = function() {
-        console.log("Tailwind configurado en modo agresivo.");
-
-        // -- CONTENEDOR Y TABLA PRINCIPAL --
-        const mainTable = document.getElementById('rcMainTable');
-        if (mainTable) {
-            mainTable.className = 'w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-sm';
-        }
-
-        // Títulos de sección (Security, Planning...)
-        const sectionTitles = document.querySelectorAll('#rcMainTable span > div');
-        sectionTitles.forEach(title => {
-            title.className = 'bg-slate-50 text-slate-600 px-4 py-2 font-bold uppercase tracking-wider text-xs border-l-4 border-blue-500';
-        });
-
-        // -- INPUTS Y SELECTS (Estilo DaisyUI input-bordered) --
-        const inputs = document.querySelectorAll('.Field input[type="text"], .Field select');
-        inputs.forEach(input => {
-            input.className = 'h-10 w-full max-w-sm px-4 bg-white border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-700';
-        });
-
-        // -- CHECKBOXES --
-        const checkboxes = document.querySelectorAll('.Field input[type="checkbox"]');
-        checkboxes.forEach(chk => {
-            chk.className = 'h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer';
-        });
-
-        // -- BOTONES LATERALES (Lupa / Calendario) (Estilo btn-ghost cuadrado) --
-        const buttons = document.querySelectorAll('.Field button');
-        buttons.forEach(btn => {
-            btn.className = 'h-10 w-10 ml-2 inline-flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors border border-transparent cursor-pointer';
-        });
-
-        // -- ENLACES DE REFERENCIA --
-        const links = document.querySelectorAll('.Field a, .content a');
-        links.forEach(link => {
-            link.className = 'text-blue-600 hover:text-blue-800 font-medium ml-2 underline decoration-blue-300 hover:decoration-blue-800 transition-colors';
-        });
-
-        // -- WORKFLOW (Botones superiores) --
-        const workflowBlock = document.querySelector('.WorkflowBlock');
-        if (workflowBlock) {
-            workflowBlock.style.borderSpacing = '8px'; // El border-spacing a veces necesita JS puro en tablas antiguas
-            
-            const stepCurrent = workflowBlock.querySelector('.stepCurrent');
-            if (stepCurrent) {
-                stepCurrent.className = 'px-6 py-3 bg-blue-50 text-blue-700 font-bold rounded-xl border-2 border-blue-200 shadow-sm text-center';
-            }
-            
-            const stepsDone = workflowBlock.querySelectorAll('.stepDone');
-            stepsDone.forEach(step => {
-                step.className = 'px-6 py-3 bg-emerald-50 text-emerald-700 font-semibold rounded-xl border border-emerald-200 cursor-pointer hover:bg-emerald-100 hover:border-emerald-300 transition-all text-center';
-            });
-        }
-    };
+    
+    document.head.appendChild(estilo);
+    console.log("¡Diseño de Synergy inyectado de forma nativa!");
 })();
