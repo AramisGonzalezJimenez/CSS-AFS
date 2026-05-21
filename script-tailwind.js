@@ -1,5 +1,5 @@
 (function() {
-    console.log("🚀 [SynergyStyler] Versión V-Final cargada.");
+    console.log("🚀 [SynergyStyler] Versión V-Final activada.");
 
     if (window.hasSynergyStylerInjected) return;
     window.hasSynergyStylerInjected = true;
@@ -36,7 +36,7 @@
             title.style.backgroundColor = '#f8f9fa';
         });
 
-        // -- INPUTS Y SELECTS (Ahora sí los encontrará) --
+        // -- INPUTS Y SELECTS --
         var formElements = document.querySelectorAll('.Field input:not([type="hidden"]), .Field select');
         console.log(`✏️ Elementos de formulario reales encontrados: ${formElements.length}`);
         
@@ -58,13 +58,13 @@
             }
         });
 
-        // -- EL BOTÓN DEL WORKFLOW (Arrancando la fealdad de raíz) --
+        // -- EL BOTÓN DEL WORKFLOW --
         var workflowTable = document.querySelector('.WorkflowBlock');
         if (workflowTable) {
             workflowTable.removeAttribute('width');
             workflowTable.className = 'mb-4 mt-2'; 
             workflowTable.style.borderCollapse = 'separate';
-            workflowTable.style.borderSpacing = '16px 0'; // Da aire entre los botones
+            workflowTable.style.borderSpacing = '16px 0';
 
             var buttonCells = workflowTable.querySelectorAll('tr:first-child td');
             buttonCells.forEach(function(td) {
@@ -72,14 +72,12 @@
                 var spanText = td.querySelector('span');
                 var text = spanText ? spanText.innerText.trim() : td.innerText.trim();
 
-                // ¡LA CLAVE! Le quitamos todas las clases asquerosas de Synergy a la celda
                 td.className = ''; 
                 td.style.background = 'transparent';
                 td.style.border = 'none';
                 td.style.padding = '0';
-                td.style.width = '160px'; // Ancho fijo del botón
+                td.style.width = '160px';
 
-                // Inyectamos el componente Flexbox puro de Bootstrap
                 if (isCurrent) {
                     td.innerHTML = `
                         <div class="btn btn-primary fw-bold d-flex align-items-center justify-content-center shadow" style="border-radius:8px; pointer-events:none; height:45px;">
@@ -95,12 +93,41 @@
                 }
             });
 
-            // Ocultamos la segunda fila de firmas antiguas si molesta visualmente
             var metaCells = workflowTable.querySelectorAll('tr:nth-child(2) td');
             metaCells.forEach(function(td) {
                 td.className = 'text-muted small text-center pt-2';
             });
         }
+
+        // ¡AQUÍ ESTÁ EL CAMBIO! Llamamos a la función de la barra de herramientas
+        estilizarToolbar();
+    }
+
+    // --- SUBFUNCIÓN DE BARRA DE COMANDOS ---
+    function estilizarToolbar() {
+        var botonesComandos = document.querySelectorAll('button.exButton, button.exButtonSave, button.exButtonDelete');
+        
+        botonesComandos.forEach(function(btn) {
+            btn.className = 'btn btn-sm px-3 me-2';
+            btn.style.fontSize = '13px';
+            btn.style.fontWeight = '500';
+
+            if (btn.id === 'btnSave' || btn.classList.contains('exButtonSave')) {
+                btn.classList.add('btn-success', 'text-white');
+            } else if (btn.id === 'btnDelete' || btn.classList.contains('exButtonDelete')) {
+                btn.classList.add('btn-danger', 'text-white');
+            } else if (btn.id === 'btnClose') {
+                btn.classList.add('btn-outline-secondary');
+            } else {
+                btn.classList.add('btn-secondary');
+            }
+        });
+
+        var headerBtns = document.querySelectorAll('button.btnHeader');
+        headerBtns.forEach(function(btn) {
+            btn.className = 'btn btn-sm btn-light border-0 text-muted me-1';
+            btn.style.fontSize = '12px';
+        });
     }
 
     // 4. Esperar de forma inteligente a que el HTML esté completo
@@ -108,7 +135,6 @@
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', aplicarMagia);
         } else {
-            // Un pequeño respiro de 100ms para asegurar que Synergy haya renderizado sus tablas
             setTimeout(aplicarMagia, 100);
         }
     };
@@ -119,5 +145,4 @@
             setTimeout(aplicarMagia, 50);
         });
     }
-
 })();
